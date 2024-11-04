@@ -1,19 +1,13 @@
-#บอทพยากรณ์อากาศ เตือนให้พกร่ม
-import requests
-city = "Udon Thani" #input
-api = "33486d92c9ef8a538e08fb13351385e6" #api key from openweatherapi
-def get_weather(api, city):
-    #ดึงข้อมูลอากาศของจังหวัด
-    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api}"
-    req = requests.get(url).json()
-    print(req)
-    
-    temp = req["main"]["temp"] #get temperature
-    print(temp)
-    #print(req)
-    
-get_weather(api, city)
-"""บอทพยากรณ์อากาศ เตือนให้พกร่ม"""
+"""
+บอทพยากรณ์อากาศ เตือนให้พกร่ม
+Function
+-ดึงข้อความจาก line /
+-reply ข้อความในไลน์ /
+-ดึงข้อมูลสภาพอากาศ /
+-notify เตือนพกร่มอัตโนมัติ
+-เพิ่มรายละเอียด function umbrella
+"""
+
 from flask import Flask, request, abort
 import requests
 import json
@@ -34,13 +28,17 @@ def get_weather(city): #ไปดู metaweather.com
     web_api = "33486d92c9ef8a538e08fb13351385e6" # api key from openweatherapi
     url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={web_api}&units=metric&lang=th"
     weather_info = requests.get(url).json()
-    
-    print(weather_info)
-    status = weather_info["weather"][0]["main"] #สภาพอากาศ
-    description = weather_info["weather"][0]["description"] #รายละเอียดอากาศ
-    noti = umbrella(status) #เตือนพกร่ม
-    #temp = weather_info["main"]["temp"] #อุณหภูมิ
-    return f"{city}'s status = {status}\ndescription = {description}\n{noti}"
+
+    print(weather_info, "test")
+
+    try:
+        status = weather_info["weather"][0]["main"] #สภาพอากาศ
+        description = weather_info["weather"][0]["description"] #รายละเอียดอากาศ
+        noti = umbrella(status) #เตือนพกร่ม
+        #temp = weather_info["main"]["temp"] #อุณหภูมิ
+        return f"{city}'s status = {status}\ndescription = {description}\n{noti}" #placeholder text
+    except:
+        return "city not found" #placeholder text
 
 @app.route("/webhook", methods=['POST','GET'])
 def webhook():
@@ -49,6 +47,7 @@ def webhook():
         body = request.json
         reply_token = body['events'][0]['replyToken']
         text = body['events'][0]['message']['text']
+        print(text)
         weather = get_weather(text)
         print(body) #check
         print(weather) #check
@@ -62,7 +61,7 @@ def reply_message(reply_token, message):
     """ส่ง text reply user"""
     line_api = "https://api.line.me/v2/bot/message/reply"
     auth = f"Bearer {line_access_token}"
-    print(auth)
+    #print(auth)
     headers = {
         "Content-Type" : "application/json; charset=UTF-8",
         "Authorization" : auth
