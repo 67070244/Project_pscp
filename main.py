@@ -18,8 +18,10 @@ channel_secret = "f386a079fe2b14019432506b89fb2864"
 line_access_token = "QVRlvdQy26KdOT8M0U9H6uY3jKqDfEAcO/3/7zL393n0B5mXOe14yr2/mhd9zIyzIeZwmEcv/2rhPZZkWhI6qm7YRFoz1difkx4POebgA+koA0quBBGHYUYr1mSopo/61pNIduEFDdGyRgx7gHIQwgdB04t89/1O/w1cDnyilFU="
 
 def umbrella(weather):
-    """ดูว่าต้องพกร่มหรือไม่"""
+    """ดูว่าต้องพกร่มและควรออกจากบ้านหรือไม่หรือไม่"""
     if weather in ("Rain", "Thunderstorm", "Drizzle"):
+        if weather in ("Thunderstorm"):
+            return "อย่าลืมพกร่มด้วย! (แนะนำว่าไม่ควรออกไปข้างนอก)"
         return "พกร่มด้วย!"
     return ""
 
@@ -28,17 +30,14 @@ def get_weather(city): #ไปดู metaweather.com
     web_api = "33486d92c9ef8a538e08fb13351385e6" # api key from openweatherapi
     url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={web_api}&units=metric&lang=th"
     weather_info = requests.get(url).json()
-
-    print(weather_info, "test")
-
+    
     try:
         status = weather_info["weather"][0]["main"] #สภาพอากาศ
         description = weather_info["weather"][0]["description"] #รายละเอียดอากาศ
         noti = umbrella(status) #เตือนพกร่ม
-        #temp = weather_info["main"]["temp"] #อุณหภูมิ
-        return f"{city}'s status = {status}\ndescription = {description}\n{noti}" #placeholder text
+        return f"{description}\n{noti}" #placeholder text
     except:
-        return "city not found" #placeholder text
+        return "ขอโทษด้วย เราไม่พบสถานที่ที่คุณต้องการทราบข้อมูล (กรุณาเช็คให้มั่นใจว่าได้เขียนชื่อเต็มแล้ว)" #placeholder text
 
 @app.route("/webhook", methods=['POST','GET'])
 def webhook():
